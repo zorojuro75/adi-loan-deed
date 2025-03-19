@@ -23,11 +23,7 @@ const nomineeHeaders = [
   "ঋনদাতার সাথে নমিনির সম্পর্ক",
   "নমিনির স্বাক্ষর",
 ];
-const rows = [
-  ["১", "ব্র্যাক ব্যাংক", "গুলশান শাখা", "১২৩৪৫৬", "৫,০০০"],
-  ["২", "ডাচ বাংলা ব্যাংক", "মিরপুর শাখা", "৬৭৮৯১০", "১০,০০০"],
-  ["৩", "প্রাইম ব্যাংক", "ধানমন্ডি শাখা", "১১১২১৩", "১৫,০০০"],
-];
+
 export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
   const { toPDF, targetRef } = usePDF({
     filename: "document.pdf",
@@ -115,18 +111,14 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               নেওয়ার ইচ্ছা পোষন করলে দ্বিতীয় পক্ষ (ঋন দাতা) নাম {deed.fullname}
               পিতাঃ {deed.fathersname}, প্রথম পক্ষের (ঋণ গ্রহীতা) স্থানীয়
               কার্যালয়; অলটারনেটিভ ডেভেলপমেন্ট ইনিসিয়েটিভ (এডিআই)
-              ---------------------------- শাখা, ------------------- অঞ্চল,
-              --------------------- জোন এ উপস্থিত হয়ে অদ্য-{deed.agreementdate}{" "}
+              {deed.first_side_representative.branch_name} শাখা, {deed.first_side_representative.region_name} অঞ্চল,
+              {deed.first_side_representative.zone_name} জোন এ উপস্থিত হয়ে অদ্য-{deed.agreementdate}{" "}
               ইং তারিখে যাবতীয় শর্তাবলী মেনে ঋণ প্রদানে সম্মত হলেন এবং উপস্থিত
               সকল পক্ষ স্বাক্ষী গনের সামনে ঋন পরিশোধের সকল দায় দায়িত্ব ও আইনগত
               বাধ্যবাধকতা স্বীকার করে নিম্নলিখিত শর্তাবলীর আলোকে অলটারনেটিভ
               ডেভেলপমেন্ট ইনিসিয়েটিভ ক্ষুদ্রঋন প্রতিষ্ঠান- এর পক্ষে
-              ---------------------------------এর সাথে এ ঋণ চুক্তিনামা সম্পাদন
-              করে নিম্নে উল্লেখিত চেকের মাধ্যমে= ----------------------/=টাকা{" "}
-              <br />
-              কথায়ঃ
-              ------------------------------------------------------------------
-              টাকা মাত্র ঋণ প্রদান করিল ।
+              {deed.fullname} এর সাথে এ ঋণ চুক্তিনামা সম্পাদন
+              করে নিম্নে উল্লেখিত চেকের মাধ্যমে= {deed.loan_amount}/={" "} কথায়ঃ {deed.loan_amount_in_words} টাকা মাত্র ঋণ প্রদান করিল ।
             </p>
             <table className="w-full border border-collapse border-black text-center">
               <thead>
@@ -142,13 +134,17 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {row.map((cell, cellIndex) => (
-                      <td key={cellIndex} className="border border-black p-2">
-                        {cell}
-                      </td>
-                    ))}
+                {deed.checks.map((check, index) => (
+                  <tr key={index}>
+                    <td className="border border-black p-2">{index + 1}</td>
+                    <td className="border border-black p-2">
+                      {check.bank_name}
+                    </td>
+                    <td className="border border-black p-2">{check.branch}</td>
+                    <td className="border border-black p-2">
+                      {check.check_number}
+                    </td>
+                    <td className="border border-black p-2">{check.amount}</td>
                   </tr>
                 ))}
               </tbody>
@@ -161,7 +157,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
                 কর্মসূচি কার্যক্রম সম্প্রসারনের লক্ষ্যে ব্যবহার করবে।
               </li>
               <li>২. গৃহীত ঋনের বাৎসরিক মুনাফা ১২% হারে প্রযোজ্য হবে।</li>
-              <li>৩. ঋণের মেয়াদ হবে --------- বছর।</li>
+              <li>৩. ঋণের মেয়াদ হবে {deed.tenure_of_loan} বছর।</li>
               <li>
                 ৪. ঋণের মেয়াদ উত্তীর্ণ হওয়ার পর উভয় পক্ষ চাইলে উক্ত ঋন নবায়ন করা
                 যাবে।
@@ -173,9 +169,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               <li>
                 ৬. প্রথম পক্ষ (ঋণ গ্রহীতা) প্রতি মাসে ঋণের মেয়াদ ০১ (এক) মাস
                 উর্ত্তীণ হওয়ার পরবর্তী সপ্তাহের প্রথম কর্মদিবসে দ্বিতীয় পক্ষের
-                (ঋণ দাতা) সংশ্লিষ্ট --------------------------------- ব্যাংক
-                পিএলসি, --------------------শাখার, হিসাব নং
-                -------------------------------মাধ্যমে মুনাফার টাকা প্রদান করবে।
+                (ঋণ দাতা) সংশ্লিষ্ট {deed.interest_bank_details.bank_name} , {deed.interest_bank_details.branch} শাখার, হিসাব নং {deed.interest_bank_details.account_number} মাধ্যমে মুনাফার টাকা প্রদান করবে।
               </li>
               <li>
                 ৭. ঋণচুক্তির মেয়াদ ০৩ মাস উত্তীর্ণ হওয়ার আগে ঋণচুক্তি বাতিল করে
@@ -236,6 +230,23 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
                   ))}
                 </tr>
               </thead>
+              <tbody>
+                {deed.nominees.map((nominee, index) => (
+                  <tr key={index}>
+                    <td className="border border-black p-2">{nominee.name}</td>
+                    <td className="border border-black p-2">
+                      {nominee.fathersname}
+                    </td>
+                    <td className="border border-black p-2">{nominee.age}</td>
+                    <td className="border border-black p-2">
+                      {nominee.nid}
+                    </td>
+                    <td className="border border-black p-2">{nominee.distributed_portion}</td>
+                    <td className="border border-black p-2">{nominee.relationship}</td>
+                    <td className="border border-black p-2">{" "}</td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
             <ul className="text-justify">
               <li>

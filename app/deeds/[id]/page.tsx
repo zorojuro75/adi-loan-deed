@@ -34,10 +34,23 @@ async function getDeed(id: string): Promise<DeedWithRelations | null> {
     console.error("Error fetching nominees:", nomineesError)
   }
 
+  // Get the bank details
+  const { data: bankDetails, error: bankDetailsError } = await supabase.from("interest_bank_details").select("*").eq("deed_id", id).single()
+  if (bankDetailsError) {
+    console.error("Error fetching bank details:", bankDetailsError)
+  }
+  // Get the ADI
+  const { data: adi, error: adiError } = await supabase.from("first_side_representative").select("*").eq("deed_id", id).single()
+  if (adiError) {
+    console.error("Error fetching ADI:", adiError)
+  }
+
   return {
     ...deed,
     checks: checks || [],
     nominees: nominees || [],
+    interest_bank_details: bankDetails || {},
+    first_side_representative: adi || {},
   }
 }
 
