@@ -117,7 +117,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               সকল পক্ষ স্বাক্ষী গনের সামনে ঋন পরিশোধের সকল দায় দায়িত্ব ও আইনগত
               বাধ্যবাধকতা স্বীকার করে নিম্নলিখিত শর্তাবলীর আলোকে অলটারনেটিভ
               ডেভেলপমেন্ট ইনিসিয়েটিভ ক্ষুদ্রঋন প্রতিষ্ঠান- এর পক্ষে
-              {deed.fullname} এর সাথে এ ঋণ চুক্তিনামা সম্পাদন
+              {deed.first_side_representative.name} এর সাথে এ ঋণ চুক্তিনামা সম্পাদন
               করে নিম্নে উল্লেখিত চেকের মাধ্যমে= {deed.loan_amount}/={" "} কথায়ঃ {deed.loan_amount_in_words} টাকা মাত্র ঋণ প্রদান করিল ।
             </p>
             <table className="w-full border border-collapse border-black text-center">
