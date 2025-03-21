@@ -1,8 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { toBanglaDate } from "@/lib/utils";
 import type { DeedWithRelations } from "@/types/deed";
 import { Resolution, usePDF } from "react-to-pdf";
+
 
 interface DeedPdfPreviewProps {
   deed: DeedWithRelations;
@@ -32,6 +34,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
       format: "legal",
     },
   });
+  const bangladate = toBanglaDate(deed.agreementdate);
 
   return (
     <div className="space-y-4">
@@ -58,9 +61,9 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               <p>চুক্তিপত্র নং-{deed.id}</p>
             </div>
             <p>
-              অদ্য {deed.agreementdate} খ্রীষ্টাব্দ তারিখ মোতাবেক শীর্ষোক্ত
-              চুক্তিপত্র নিম্নে বর্নিত শর্তাবলী মোতাবেক পক্ষগনের মধ্যে ঋণচুক্তি
-              সম্পাদিত হলো।{" "}
+              অদ্য {deed.agreementdate} খ্রীষ্টাব্দ তারিখ মোতাবেক {bangladate}{" "}
+              বঙ্গাব্দ শীর্ষোক্ত চুক্তিপত্র নিম্নে বর্নিত শর্তাবলী মোতাবেক
+              পক্ষগনের মধ্যে ঋণচুক্তি সম্পাদিত হলো।{" "}
             </p>
             <div className="flex gap-4">
               {/* First Column */}
@@ -111,14 +114,17 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               নেওয়ার ইচ্ছা পোষন করলে দ্বিতীয় পক্ষ (ঋন দাতা) নাম {deed.fullname}
               পিতাঃ {deed.fathersname}, প্রথম পক্ষের (ঋণ গ্রহীতা) স্থানীয়
               কার্যালয়; অলটারনেটিভ ডেভেলপমেন্ট ইনিসিয়েটিভ (এডিআই)
-              {deed.first_side_representative.branch_name} শাখা, {deed.first_side_representative.region_name} অঞ্চল,
-              {deed.first_side_representative.zone_name} জোন এ উপস্থিত হয়ে অদ্য-{deed.agreementdate}{" "}
-              ইং তারিখে যাবতীয় শর্তাবলী মেনে ঋণ প্রদানে সম্মত হলেন এবং উপস্থিত
-              সকল পক্ষ স্বাক্ষী গনের সামনে ঋন পরিশোধের সকল দায় দায়িত্ব ও আইনগত
-              বাধ্যবাধকতা স্বীকার করে নিম্নলিখিত শর্তাবলীর আলোকে অলটারনেটিভ
-              ডেভেলপমেন্ট ইনিসিয়েটিভ ক্ষুদ্রঋন প্রতিষ্ঠান- এর পক্ষে
-              {deed.first_side_representative.name} এর সাথে এ ঋণ চুক্তিনামা সম্পাদন
-              করে নিম্নে উল্লেখিত চেকের মাধ্যমে= {deed.loan_amount}/={" "} কথায়ঃ {deed.loan_amount_in_words} টাকা মাত্র ঋণ প্রদান করিল ।
+              {deed.first_side_representative.branch_name} শাখা,{" "}
+              {deed.first_side_representative.region_name} অঞ্চল,
+              {deed.first_side_representative.zone_name} জোন এ উপস্থিত হয়ে অদ্য-
+              {deed.agreementdate} ইং তারিখে যাবতীয় শর্তাবলী মেনে ঋণ প্রদানে
+              সম্মত হলেন এবং উপস্থিত সকল পক্ষ স্বাক্ষী গনের সামনে ঋন পরিশোধের
+              সকল দায় দায়িত্ব ও আইনগত বাধ্যবাধকতা স্বীকার করে নিম্নলিখিত
+              শর্তাবলীর আলোকে অলটারনেটিভ ডেভেলপমেন্ট ইনিসিয়েটিভ ক্ষুদ্রঋন
+              প্রতিষ্ঠান- এর পক্ষে
+              {deed.first_side_representative.name} এর সাথে এ ঋণ চুক্তিনামা
+              সম্পাদন করে নিম্নে উল্লেখিত চেকের মাধ্যমে= {deed.loan_amount}/={" "}
+              কথায়ঃ {deed.loan_amount_in_words} টাকা মাত্র ঋণ প্রদান করিল ।
             </p>
             <table className="w-full border border-collapse border-black text-center">
               <thead>
@@ -169,7 +175,10 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               <li>
                 ৬. প্রথম পক্ষ (ঋণ গ্রহীতা) প্রতি মাসে ঋণের মেয়াদ ০১ (এক) মাস
                 উর্ত্তীণ হওয়ার পরবর্তী সপ্তাহের প্রথম কর্মদিবসে দ্বিতীয় পক্ষের
-                (ঋণ দাতা) সংশ্লিষ্ট {deed.interest_bank_details.bank_name} , {deed.interest_bank_details.branch} শাখার, হিসাব নং {deed.interest_bank_details.account_number} মাধ্যমে মুনাফার টাকা প্রদান করবে।
+                (ঋণ দাতা) সংশ্লিষ্ট {deed.interest_bank_details.bank_name} ,{" "}
+                {deed.interest_bank_details.branch} শাখার, হিসাব নং{" "}
+                {deed.interest_bank_details.account_number} মাধ্যমে মুনাফার টাকা
+                প্রদান করবে।
               </li>
               <li>
                 ৭. ঋণচুক্তির মেয়াদ ০৩ মাস উত্তীর্ণ হওয়ার আগে ঋণচুক্তি বাতিল করে
@@ -238,12 +247,14 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
                       {nominee.fathersname}
                     </td>
                     <td className="border border-black p-2">{nominee.age}</td>
+                    <td className="border border-black p-2">{nominee.nid}</td>
                     <td className="border border-black p-2">
-                      {nominee.nid}
+                      {nominee.distributed_portion}
                     </td>
-                    <td className="border border-black p-2">{nominee.distributed_portion}</td>
-                    <td className="border border-black p-2">{nominee.relationship}</td>
-                    <td className="border border-black p-2">{" "}</td>
+                    <td className="border border-black p-2">
+                      {nominee.relationship}
+                    </td>
+                    <td className="border border-black p-2"> </td>
                   </tr>
                 ))}
               </tbody>

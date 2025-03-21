@@ -1,5 +1,8 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import Calendar from "date-bengali-revised";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -13,4 +16,13 @@ export function formatDate(dateString: string): string {
     day: "numeric",
   })
 }
-
+function splitDate(dateString: string) {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return { year, month, day };
+}
+export function toBanglaDate(dateString: string) {
+  const { year, month, day } = splitDate(dateString);
+  const cal = new Calendar();
+  cal.fromGregorian(year, month, day);
+  return cal.format("dddd D MMMM, Y");
+}
