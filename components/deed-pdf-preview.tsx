@@ -29,7 +29,7 @@ const nomineeHeaders = [
 export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
   const { toPDF, targetRef } = usePDF({
     filename: "document.pdf",
-    resolution: Resolution.MEDIUM,
+    resolution: Resolution.LOW,
     page: {
       format: "legal",
     },
@@ -37,7 +37,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
   const bangladate = toBanglaDate(deed.agreementdate);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-[941px]">
       <div className="flex justify-end gap-4 mb-4">
         <Button variant="outline" onClick={() => toPDF()}>
           Generate PDF
@@ -45,7 +45,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
       </div>
 
       <div className="m-0 p-0 b-0" ref={targetRef}>
-        <div className={`flex h-[1551px]`}>
+        <div className={`flex h-[1551px] w-[941px]`}>
           <div className="mt-[4.5in] mb-[1.5in] mx-[1in] flex-1 flex flex-col items-center gap-4">
             <div className="flex flex-col items-center">
               <h1 className="text-2xl font-bold mb-4">
@@ -106,7 +106,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
             </div>
           </div>
         </div>
-        <div className={`flex h-[1551px]`}>
+        <div className={`flex h-[1551px] w-[941px]`}>
           <div className="mt-[4.5in] mb-[1.5in] mx-[1in] flex-1 flex flex-col items-center gap-4">
             <p>
               অলটারনেটিভ ডেভেলপমেন্ট ইনিসিয়েটিভ (এডিআই) এর ক্ষুদ্রঋণ কার্যক্রম
@@ -205,7 +205,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
             </ul>
           </div>
         </div>
-        <div className={`flex h-[1551px]`}>
+        <div className={`flex h-[1551px] w-[941px]`}>
           <div className="mt-[4.5in] mb-[1.5in] mx-[1in] flex-1 flex flex-col items-center gap-4">
             <ul className="text-justify">
               <li>
@@ -280,7 +280,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
             </ul>
           </div>
         </div>
-        <div className={`flex h-[1551px]`}>
+        <div className={`flex h-[1551px] w-[941px]`}>
           <div className="mt-[4.5in] mb-[1.5in] mx-[1in] flex-1 flex flex-col items-center gap-4">
             <p>
               নিম্ন লিখিত স্বাক্ষী গণের উপস্থিতিতে স্বেচ্ছায় স্বজ্ঞানে সুস্থ্য
