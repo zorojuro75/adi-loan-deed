@@ -259,7 +259,7 @@ export default async function DeedPage({ params }: { params: { id: string } }) {
         </div>
 
         <div className="lg:col-span-2">
-          <Card className="h-full min-w-[950px]">
+          <Card className="h-full min-w-[960px]">
             <CardContent className="pt-6 h-full">
               <h2 className="text-xl font-semibold mb-4">PDF Preview</h2>
               <DeedPdfPreview deed={deed} />
