@@ -1,12 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createClient } from "@supabase/supabase-js";
 import { NextAuthOptions } from "next-auth";
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { supabase } from "@/lib/supabase";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -27,7 +21,7 @@ export const authOptions: NextAuthOptions = {
             .from("users")
             .select("*")
             .eq("username", credentials.username)
-            .eq("password", credentials.password) // Note: In production, you should hash passwords
+            .eq("password", credentials.password)
             .single();
 
           if (error || !data) {
@@ -38,7 +32,8 @@ export const authOptions: NextAuthOptions = {
           return {
             id: data.id.toString(),
             name: data.username,
-            email: data.email || "",
+            role: data.role || "user",
+            branch_code: data.branch_code || "",
             // You can add more user data here if needed
           };
         } catch (error) {
@@ -50,7 +45,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
     signIn: "/login",
@@ -58,13 +53,19 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // Add user data to the JWT token
         token.id = user.id;
+        token.role = user.role;
+        token.branch_code = user.branch_code;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token) {
+        // Add the user data from the token to the session
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.branch_code = token.branch_code as string;
       }
       return session;
     },

@@ -1,28 +1,13 @@
-import { createServerClient } from "@/lib/supabase";
-import { DeedData } from "@/types/deed";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDate } from "@/lib/utils";
-import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { getDeeds } from "@/lib/deet";
+import { formatDate } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const revalidate = 0;
 
-async function getDeeds() {
-  const supabase = createServerClient();
-  const { data, error } = await supabase
-    .from("deeds")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching deeds:", error);
-    return [];
-  }
-
-  return data as DeedData[];
-}
 
 export default async function Home() {
   const user = await getCurrentUser();
@@ -34,65 +19,140 @@ export default async function Home() {
 
   return (
     <main className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">
-        Alternative Development Initiative
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <Image src={"/adi.png"} height={100} width={100} alt="" />
+        <div className="flex items-center gap-10">
+          <div className="text-center">
+            <Link href="/deeds/new">
+              <Button size="lg">Create New Deed</Button>
+            </Link>
+          </div>
+          <div className="text-center">
+            <form action="/api/auth/signout" method="POST">
+              <button
+                type="submit"
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium flex items-center justify-center gap-1 mx-auto"
+              >
+                Sign out
+                <span className="inline-block transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="overflow-x-auto">
         {deeds.length === 0 ? (
-          <p className="col-span-full text-center text-muted-foreground">
+          <p className="text-center text-muted-foreground">
             No deeds found. Create a new deed to get started.
           </p>
         ) : (
-          deeds.map((deed) => (
-            <Card key={deed.id} className="h-full">
-              <CardHeader>
-                <CardTitle className="bangla">{deed.fullname}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p>
-                    <span className="font-medium">Agreement Date:</span>{" "}
+          <table className="min-w-full divide-y divide-gray-200 scro">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Serial No
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Deed No
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Full Name
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Agreement Date
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount of Loan
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Tenure of Loan
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  End Date of Tenure
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Date of Interest
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount of Interest
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  A/C No of Interest
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name of Bank
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name of Branch
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Routing No of Bank
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  view Deed
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Approval
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {deeds.map((deed, index) => (
+                <tr key={deed.id} className="text-center">
+                  <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{deed.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.fullname}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     {formatDate(deed.agreementdate)}
-                  </p>
-                  <p>
-                    <span className="font-medium">NID:</span> {deed.nid}
-                  </p>
-                  <p>
-                    <span className="font-medium">Mobile:</span> {deed.mobile}
-                  </p>
-                  <div className="mt-4">
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.loan_amount}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.tenure_of_loan} year
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {formatDate(
+                      new Date(
+                        new Date(deed.agreementdate).setFullYear(
+                          new Date(deed.agreementdate).getFullYear() +
+                            deed.tenure_of_loan
+                        )
+                      ).toISOString()
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {" "}
+                    {new Date(deed.agreementdate)
+                      .getDate()
+                      .toString()
+                      .padStart(2, "0")}{" "}
+                    of each month
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">{(deed.loan_amount * 0.01)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.account_number}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.bank_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.branch}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.branch_routing_number}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <Link href={`/deeds/${deed.id}`}>
-                      <Button>View Deed</Button>
+                      <Button size="sm">View</Button>
                     </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Link href={`/deeds/${deed.id}`}>
+                      <Button size="sm">Approve</Button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}{" "}            </tbody>
+          </table>
         )}
-      </div>
-
-      <div className="mt-8 text-center">
-        <Link href="/deeds/new">
-          <Button size="lg">Create New Deed</Button>
-        </Link>
-      </div>
-      <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100">
-        <form action="/api/auth/signout" method="POST">
-          <button
-            type="submit"
-            className="mb-3 text-2xl font-semibold text-left w-full"
-          >
-            Logout{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              →
-            </span>
-          </button>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Sign out of your account
-          </p>
-        </form>
       </div>
     </main>
   );
