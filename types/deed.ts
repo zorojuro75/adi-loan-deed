@@ -1,5 +1,6 @@
 export interface DeedData {
   id: string
+  deed_custom_id: string
   agreementdate: string
   fullname: string
   fathersname: string

@@ -59,7 +59,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               <br />
               <p>APLF ঋণ চুক্তিপত্র/ ব্যক্তিগত ঋনের চুক্তিপত্র</p>
               <br />
-              <p>চুক্তিপত্র নং-{deed.id}</p>
+              <p>চুক্তিপত্র নং-{deed.deed_custom_id}</p>
             </div>
             <p>
               অদ্য {convertToBengaliNumber(deed.agreementdate)} খ্রীষ্টাব্দ

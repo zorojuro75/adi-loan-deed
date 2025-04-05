@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +33,17 @@ type Props = {
       };
     };
   };
-
+  const generateDeedId = (): string => {
+    const now = new Date();
+    return [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+      String(now.getHours()).padStart(2, '0'),
+      String(now.getMinutes()).padStart(2, '0'),
+      String(now.getSeconds()).padStart(2, '0')
+    ].join('');
+  };
 export default function NewDeedPage({ branchData }: Props) {
   
   const router = useRouter();
@@ -41,6 +51,7 @@ export default function NewDeedPage({ branchData }: Props) {
   const [activeTab, setActiveTab] = useState("personal");
 
   const [deedData, setDeedData] = useState<Partial<DeedData>>({
+    deed_custom_id: "",
     agreementdate: new Date().toISOString().split("T")[0],
     fullname: "",
     fathersname: "",
@@ -89,6 +100,12 @@ export default function NewDeedPage({ branchData }: Props) {
       distributed_portion: 0,
     },
   ]);
+  useEffect(() => {
+    setDeedData(prev => ({
+      ...prev,
+      deed_custom_id: generateDeedId()
+    }));
+  }, [])
 
   const handleDeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

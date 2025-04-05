@@ -8,7 +8,6 @@ import { redirect } from "next/navigation";
 
 export const revalidate = 0;
 
-
 export default async function Home() {
   const user = await getCurrentUser();
 
@@ -101,9 +100,11 @@ export default async function Home() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {deeds.map((deed, index) => (
-                <tr key={deed.id} className="text-center">
+                <tr key={index} className="text-center">
                   <td className="px-6 py-4 whitespace-nowrap">{index + 1}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{deed.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.deed_custom_id}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {deed.fullname}
                   </td>
@@ -134,11 +135,21 @@ export default async function Home() {
                       .padStart(2, "0")}{" "}
                     of each month
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{(deed.loan_amount * 0.01)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.account_number}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.bank_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.branch}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{deed.interest_bank_details.branch_routing_number}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.loan_amount * 0.01}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.interest_bank_details.account_number}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.interest_bank_details.bank_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.interest_bank_details.branch}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.interest_bank_details.branch_routing_number}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Link href={`/deeds/${deed.id}`}>
                       <Button size="sm">View</Button>
@@ -150,7 +161,8 @@ export default async function Home() {
                     </Link>
                   </td>
                 </tr>
-              ))}{" "}            </tbody>
+              ))}{" "}
+            </tbody>
           </table>
         )}
       </div>
