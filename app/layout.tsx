@@ -29,6 +29,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
+      <AuthProvider>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -38,10 +39,12 @@ export default function RootLayout({
           {children}
           <Toaster />
         </ThemeProvider>
+      </AuthProvider>
       </body>
     </html>
   );
 }
 
 import "./globals.css";
-import { Toaster } from "sonner";
+import { Toaster } from "sonner";import AuthProvider from "@/components/auth-provider";
+

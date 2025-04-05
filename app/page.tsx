@@ -1,30 +1,42 @@
-import { createServerClient } from "@/lib/supabase"
-import { DeedData } from "@/types/deed"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatDate } from "@/lib/utils"
+import { createServerClient } from "@/lib/supabase";
+import { DeedData } from "@/types/deed";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDate } from "@/lib/utils";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 
-export const revalidate = 0
+export const revalidate = 0;
 
 async function getDeeds() {
-  const supabase = createServerClient()
-  const { data, error } = await supabase.from("deeds").select("*").order("created_at", { ascending: false })
+  const supabase = createServerClient();
+  const { data, error } = await supabase
+    .from("deeds")
+    .select("*")
+    .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching deeds:", error)
-    return []
+    console.error("Error fetching deeds:", error);
+    return [];
   }
 
-  return data as DeedData[]
+  return data as DeedData[];
 }
 
 export default async function Home() {
-  const deeds = await getDeeds()
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+  const deeds = await getDeeds();
 
   return (
     <main className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Deed PDF Generator</h1>
+      <h1 className="text-3xl font-bold mb-8">
+        Alternative Development Initiative
+      </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {deeds.length === 0 ? (
@@ -40,7 +52,8 @@ export default async function Home() {
               <CardContent>
                 <div className="space-y-2">
                   <p>
-                    <span className="font-medium">Agreement Date:</span> {formatDate(deed.agreementdate)}
+                    <span className="font-medium">Agreement Date:</span>{" "}
+                    {formatDate(deed.agreementdate)}
                   </p>
                   <p>
                     <span className="font-medium">NID:</span> {deed.nid}
@@ -65,7 +78,22 @@ export default async function Home() {
           <Button size="lg">Create New Deed</Button>
         </Link>
       </div>
+      <div className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100">
+        <form action="/api/auth/signout" method="POST">
+          <button
+            type="submit"
+            className="mb-3 text-2xl font-semibold text-left w-full"
+          >
+            Logout{" "}
+            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+              →
+            </span>
+          </button>
+          <p className="m-0 max-w-[30ch] text-sm opacity-50">
+            Sign out of your account
+          </p>
+        </form>
+      </div>
     </main>
-  )
+  );
 }
-
