@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -26,3 +27,13 @@ export function toBanglaDate(dateString: string) {
   cal.fromGregorian(year, month, day);
   return cal.format("dddd D MMMM, Y");
 }
+
+export const convertToBengaliNumber = (input: any) => {
+  if (typeof input !== "string") {
+    input = String(input); // Convert non-string values to string
+  }
+  
+  const bengaliDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  
+  return input.replace(/\d/g, (digit: string) => bengaliDigits[parseInt(digit, 10)]);
+};
