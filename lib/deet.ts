@@ -1,5 +1,5 @@
 import { DeedWithRelations } from "@/types/deed";
-import { createServerClient } from "./supabase";
+import { createServerClient, supabase } from "./supabase";
 
 export async function getDeed(id: string): Promise<DeedWithRelations | null> {
   const supabase = createServerClient();
@@ -118,3 +118,34 @@ export async function getDeeds(): Promise<DeedWithRelations[]> {
 
   return deedsWithRelations;
 }
+
+export const generateDeedId = (branch_code: string): Promise<string> => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Fetch last created custom_deed_id
+      const { data, error } = await supabase
+        .from("deeds")
+        .select("deed_custom_id")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      let sequenceNumber: string;
+      
+      if (error || !data) {
+        sequenceNumber = "001";
+      } else {
+        console.log(data);
+        const lastDeedId = data.deed_custom_id;
+        const lastThreeDigits = lastDeedId.slice(-3);
+        const incremented = parseInt(lastThreeDigits, 10) + 1;
+        sequenceNumber = String(incremented).padStart(3, "0");
+      }
+
+      const newDeedId = `${branch_code.slice(0, 2)}${sequenceNumber}`;
+      resolve(newDeedId);
+    } catch (err) {
+      reject(err);
+    }
+  });
+};

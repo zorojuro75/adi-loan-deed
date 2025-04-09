@@ -64,6 +64,9 @@ export default async function Home() {
                   Agreement Date
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Branch Name
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Amount of Loan
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -82,13 +85,13 @@ export default async function Home() {
                   A/C No of Interest
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name of Bank
+                  Name of Interest A/C Bank
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name of Branch
+                  Name of Interest A/C Branch
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Routing No of Bank
+                  Routing No of Interest A/C Bank
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   view Deed
@@ -110,6 +113,9 @@ export default async function Home() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {formatDate(deed.agreementdate)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {deed.first_side_representative.branch_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {deed.loan_amount}

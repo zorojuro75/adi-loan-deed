@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,33 +19,24 @@ import type {
 } from "@/types/deed";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { generateDeedId } from "@/lib/deet";
+
 type Props = {
-    branchData: {
-      branch_code: string;
-      branch_name: string;
-      region: {
-        region_code: string;
-        region_name: string;
-        zone: {
-          zone_code: string;
-          zone_name: string;
-        };
+  branchData: {
+    branch_code: string;
+    branch_name: string;
+    region: {
+      region_code: string;
+      region_name: string;
+      zone: {
+        zone_code: string;
+        zone_name: string;
       };
     };
   };
-  const generateDeedId = (): string => {
-    const now = new Date();
-    return [
-      now.getFullYear(),
-      String(now.getMonth() + 1).padStart(2, '0'),
-      String(now.getDate()).padStart(2, '0'),
-      String(now.getHours()).padStart(2, '0'),
-      String(now.getMinutes()).padStart(2, '0'),
-      String(now.getSeconds()).padStart(2, '0')
-    ].join('');
-  };
+};
+
 export default function NewDeedPage({ branchData }: Props) {
-  
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
@@ -100,12 +91,6 @@ export default function NewDeedPage({ branchData }: Props) {
       distributed_portion: 0,
     },
   ]);
-  useEffect(() => {
-    setDeedData(prev => ({
-      ...prev,
-      deed_custom_id: generateDeedId()
-    }));
-  }, [])
 
   const handleDeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -188,10 +173,16 @@ export default function NewDeedPage({ branchData }: Props) {
     setIsSubmitting(true);
 
     try {
+      // Generate custom ID
+      const custom_deed_id = await generateDeedId(branchData.branch_code);
+      const completeDeedData = {
+        ...deedData,
+        deed_custom_id: custom_deed_id,
+      };
       // Insert deed
       const { data: deedResult, error: deedError } = await supabase
         .from("deeds")
-        .insert([deedData])
+        .insert([completeDeedData])
         .select()
         .single();
 
@@ -207,8 +198,8 @@ export default function NewDeedPage({ branchData }: Props) {
 
       // Insert ADI
       const { error: adiError } = await supabase
-      .from("first_side_representative")
-      .insert({ ...adi, deed_id: deedId });
+        .from("first_side_representative")
+        .insert({ ...adi, deed_id: deedId });
       if (adiError) throw adiError;
 
       // Insert checks
@@ -533,6 +524,7 @@ export default function NewDeedPage({ branchData }: Props) {
                         onChange={handleAdiChange}
                         className="bangla"
                         required
+                        disabled
                       />
                     </div>
 
@@ -545,6 +537,7 @@ export default function NewDeedPage({ branchData }: Props) {
                         onChange={handleAdiChange}
                         className="bangla"
                         required
+                        disabled
                       />
                     </div>
 
@@ -557,6 +550,7 @@ export default function NewDeedPage({ branchData }: Props) {
                         onChange={handleAdiChange}
                         className="bangla"
                         required
+                        disabled
                       />
                     </div>
                   </div>
