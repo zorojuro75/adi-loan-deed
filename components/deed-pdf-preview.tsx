@@ -33,7 +33,6 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
       format: "legal",
     },
   });
-  const bangladate = toBanglaDate(deed.agreementdate);
 
   return (
     <div className="space-y-4 min-w-[942px]">
@@ -59,12 +58,19 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               <br />
               <p>APLF ঋণ চুক্তিপত্র/ ব্যক্তিগত ঋনের চুক্তিপত্র</p>
               <br />
-              <p>চুক্তিপত্র নং-{deed.deed_custom_id}</p>
+              <p>চুক্তিপত্র নং-{convertToBengaliNumber(deed.deed_custom_id)}</p>
             </div>
             <p>
-              অদ্য {convertToBengaliNumber(deed.agreementdate)} খ্রীষ্টাব্দ
-              তারিখ মোতাবেক {bangladate} বঙ্গাব্দ শীর্ষোক্ত চুক্তিপত্র নিম্নে
-              বর্নিত শর্তাবলী মোতাবেক পক্ষগনের মধ্যে ঋণচুক্তি সম্পাদিত হলো।{" "}
+              অদ্য{" "}
+              {convertToBengaliNumber(
+                new Date(deed.agreementdate)
+                  .toLocaleDateString("en-GB")
+                  .split("/")
+                  .join("-")
+              )}{" "}
+              খ্রীষ্টাব্দ তারিখ মোতাবেক {toBanglaDate(deed.agreementdate)}{" "}
+              বঙ্গাব্দ শীর্ষোক্ত চুক্তিপত্র নিম্নে বর্নিত শর্তাবলী মোতাবেক
+              পক্ষগনের মধ্যে ঋণচুক্তি সম্পাদিত হলো।{" "}
             </p>
             <div className="flex gap-4">
               {/* First Column */}
@@ -118,15 +124,20 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               {deed.first_side_representative.branch_name} শাখা,{" "}
               {deed.first_side_representative.region_name} অঞ্চল,{" "}
               {deed.first_side_representative.zone_name} জোন এ উপস্থিত হয়ে অদ্য-
-              {convertToBengaliNumber(deed.agreementdate)} ইং তারিখে যাবতীয়
-              শর্তাবলী মেনে ঋণ প্রদানে সম্মত হলেন এবং উপস্থিত সকল পক্ষ
-              স্বাক্ষীগণের সামনে ঋন পরিশোধের সকল দায়-দায়িত্ব ও আইনগত বাধ্যবাধকতা
-              স্বীকার করে নিম্নলিখিত শর্তাবলীর আলোকে অলটারনেটিভ ডেভেলপমেন্ট
-              ইনিসিয়েটিভ ক্ষুদ্রঋন প্রতিষ্ঠান- এর পক্ষে
+              {convertToBengaliNumber(
+                new Date(deed.agreementdate)
+                  .toLocaleDateString("en-GB")
+                  .split("/")
+                  .join("-")
+              )}{" "}
+              ইং তারিখে যাবতীয় শর্তাবলী মেনে ঋণ প্রদানে সম্মত হলেন এবং উপস্থিত
+              সকল পক্ষ স্বাক্ষীগণের সামনে ঋন পরিশোধের সকল দায়-দায়িত্ব ও আইনগত
+              বাধ্যবাধকতা স্বীকার করে নিম্নলিখিত শর্তাবলীর আলোকে অলটারনেটিভ
+              ডেভেলপমেন্ট ইনিসিয়েটিভ ক্ষুদ্রঋন প্রতিষ্ঠান- এর পক্ষে
               {deed.first_side_representative.name} এর সাথে এ ঋণ চুক্তিনামা
               সম্পাদন করে নিম্নে উল্লেখিত চেকের মাধ্যমে={" "}
-              {convertToBengaliNumber(deed.loan_amount)}/= কথায়ঃ{" "}
-              {deed.loan_amount_in_words} টাকা মাত্র ঋণ প্রদান করিল ।
+              {convertToBengaliNumber(deed.loan_amount)}/= কথায়ঃ (
+              {deed.loan_amount_in_words}) টাকা মাত্র ঋণ প্রদান করিল ।
             </p>
             <table className="w-full border border-collapse border-black text-center">
               <thead>
@@ -252,7 +263,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               </thead>
               <tbody>
                 {deed.nominees.map((nominee, index) => (
-                  <tr key={index}>
+                  <tr key={index} className="text-center">
                     <td className="border border-black p-2">{nominee.name}</td>
                     <td className="border border-black p-2">
                       {nominee.fathersname}
