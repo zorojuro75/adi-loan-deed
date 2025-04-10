@@ -1,8 +1,5 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +15,9 @@ import type {
 } from "@/types/deed";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 export default function EditDeedPage() {
   const router = useRouter();
@@ -217,23 +217,29 @@ export default function EditDeedPage() {
     }
   };
 
-  // ... [Keep all the existing UI and handler functions from NewDeedPage]
+  const tabs = [
+    "personal",
+    "address",
+    "adi",
+    "loan",
+    "checks",
+    "interest_bank_details",
+    "nominees",
+    "witnesses",
+  ];
+
   const goToNextTab = () => {
-    if (activeTab === "personal") setActiveTab("address");
-    else if (activeTab === "address") setActiveTab("adi");
-    else if (activeTab === "adi") setActiveTab("loan");
-    else if (activeTab === "loan") setActiveTab("checks");
-    else if (activeTab === "checks") setActiveTab("interest_bank_details");
-    else if (activeTab === "interest_bank_details") setActiveTab("nominees");
+    const currentIndex = tabs.indexOf(activeTab);
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1]);
+    }
   };
 
   const goToPrevTab = () => {
-    if (activeTab === "nominees") setActiveTab("interest_bank_details");
-    else if (activeTab === "interest_bank_details") setActiveTab("checks");
-    else if (activeTab === "checks") setActiveTab("adi");
-    else if (activeTab === "adi") setActiveTab("loan");
-    else if (activeTab === "loan") setActiveTab("address");
-    else if (activeTab === "address") setActiveTab("personal");
+    const currentIndex = tabs.indexOf(activeTab);
+    if (currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1]);
+    }
   };
 
   if (isLoading) {

@@ -124,14 +124,13 @@ export default async function Home() {
                     {deed.tenure_of_loan} year
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {formatDate(
-                      new Date(
+                    {
+                      formatDate(new Date(
                         new Date(deed.agreementdate).setFullYear(
-                          new Date(deed.agreementdate).getFullYear() +
-                            deed.tenure_of_loan
+                          new Date(deed.agreementdate).getFullYear() + deed.tenure_of_loan
                         )
-                      ).toISOString()
-                    )}
+                      ).toISOString())
+                    }
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {" "}

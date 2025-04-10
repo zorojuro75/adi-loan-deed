@@ -33,6 +33,7 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
       format: "legal",
     },
   });
+  console.log("deed", deed);
 
   return (
     <div className="space-y-4 min-w-[942px]">
@@ -346,11 +347,11 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               </div>
               <div className="flex-1 border rounded p-2">
                 <p> ২য় পক্ষের (ঋনদাতা) স্বাক্ষী</p>
-                <p>নাম:</p>
+                <p>নাম: {deed.witnesses_lander[0]?.name}</p>
                 <br />
                 <br />
                 <p>স্বাক্ষর</p>
-                <p>ঠিকানা:</p>
+                <p>ঠিকানা: {deed.witnesses_lander[0]?.addresss}</p>
               </div>
               <div className="flex-1 border rounded p-2">
                 <p> ১ম পক্ষের (ঋনগ্রহিতা) স্বাক্ষী</p>
@@ -366,11 +367,11 @@ export default function DeedPdfPreview({ deed }: DeedPdfPreviewProps) {
               </div>
               <div className="flex-1 border rounded p-2">
                 <p> ২য় পক্ষের (ঋনদাতা) স্বাক্ষী</p>
-                <p>নাম:</p>
+                <p>নাম: {deed.witnesses[1]?.name}</p>
                 <br />
                 <br />
                 <p>স্বাক্ষর</p>
-                <p>ঠিকানা:</p>
+                <p>ঠিকানা: {deed.witnesses_lander[1]?.addresss}</p>
               </div>
             </div>
           </div>

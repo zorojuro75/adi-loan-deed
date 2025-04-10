@@ -16,58 +16,47 @@ export async function getDeed(id: string): Promise<DeedWithRelations | null> {
     return null;
   }
 
-  // Get the checks
-  const { data: checks, error: checksError } = await supabase
-    .from("checks")
-    .select("*")
-    .eq("deed_id", id);
+  const [checks, nominees, bankDetails, adi, witnesses] = await Promise.all([
+    supabase.from("checks").select("*").eq("deed_id", id),
+    supabase.from("nominees").select("*").eq("deed_id", id),
+    supabase
+      .from("interest_bank_details")
+      .select("*")
+      .eq("deed_id", id)
+      .single(),
+    supabase
+      .from("first_side_representative")
+      .select("*")
+      .eq("deed_id", id)
+      .single(),
+    supabase.from("witnesses").select("*").eq("deed_id", id),
+  ]);
 
-  if (checksError) {
-    console.error("Error fetching checks:", checksError);
-  }
-
-  // Get the nominees
-  const { data: nominees, error: nomineesError } = await supabase
-    .from("nominees")
-    .select("*")
-    .eq("deed_id", id);
-
-  if (nomineesError) {
-    console.error("Error fetching nominees:", nomineesError);
-  }
-
-  // Get the bank details
-  const { data: bankDetails, error: bankDetailsError } = await supabase
-    .from("interest_bank_details")
-    .select("*")
-    .eq("deed_id", id)
-    .single();
-  if (bankDetailsError) {
-    console.error("Error fetching bank details:", bankDetailsError);
-  }
-  // Get the ADI
-  const { data: adi, error: adiError } = await supabase
-    .from("first_side_representative")
-    .select("*")
-    .eq("deed_id", id)
-    .single();
-  if (adiError) {
-    console.error("Error fetching ADI:", adiError);
-  }
+  if (checks.error) console.error("Error fetching checks:", checks.error);
+  if (nominees.error) console.error("Error fetching nominees:", nominees.error);
+  if (bankDetails.error)
+    console.error("Error fetching bank details:", bankDetails.error);
+  if (adi.error) console.error("Error fetching ADI:", adi.error);
+  if (witnesses.error)
+    console.error("Error fetching witnesses:", witnesses.error);
 
   return {
     ...deed,
-    checks: checks || [],
-    nominees: nominees || [],
-    interest_bank_details: bankDetails || {},
-    first_side_representative: adi || {},
+    checks: checks.data || [],
+    nominees: nominees.data || [],
+    interest_bank_details: bankDetails.data || {},
+    first_side_representative: adi.data || {},
+    witnesses: witnesses.data || [],
+    witnesses_adi: (witnesses.data || []).filter((w) => w.party === "adi"),
+    witnesses_lander: (witnesses.data || []).filter(
+      (w) => w.party === "lander"
+    ),
   };
 }
 
 export async function getDeeds(): Promise<DeedWithRelations[]> {
   const supabase = createServerClient();
 
-  // Step 1: Fetch all deeds
   const { data: deeds, error: deedsError } = await supabase
     .from("deeds")
     .select("*")
@@ -78,33 +67,39 @@ export async function getDeeds(): Promise<DeedWithRelations[]> {
     return [];
   }
 
-  // Step 2: Loop and fetch related data for each deed
   const deedsWithRelations: DeedWithRelations[] = await Promise.all(
     deeds.map(async (deed) => {
-      const [checks, nominees, bankDetails, adi] = await Promise.all([
-        supabase
-          .from("checks")
-          .select("*")
-          .eq("deed_id", deed.id)
-          .then((res) => res.data || []),
-        supabase
-          .from("nominees")
-          .select("*")
-          .eq("deed_id", deed.id)
-          .then((res) => res.data || []),
-        supabase
-          .from("interest_bank_details")
-          .select("*")
-          .eq("deed_id", deed.id)
-          .single()
-          .then((res) => res.data || {}),
-        supabase
-          .from("first_side_representative")
-          .select("*")
-          .eq("deed_id", deed.id)
-          .single()
-          .then((res) => res.data || {}),
-      ]);
+      const [checks, nominees, bankDetails, adi, witnesses] = await Promise.all(
+        [
+          supabase
+            .from("checks")
+            .select("*")
+            .eq("deed_id", deed.id)
+            .then((res) => res.data || []),
+          supabase
+            .from("nominees")
+            .select("*")
+            .eq("deed_id", deed.id)
+            .then((res) => res.data || []),
+          supabase
+            .from("interest_bank_details")
+            .select("*")
+            .eq("deed_id", deed.id)
+            .single()
+            .then((res) => res.data || {}),
+          supabase
+            .from("first_side_representative")
+            .select("*")
+            .eq("deed_id", deed.id)
+            .single()
+            .then((res) => res.data || {}),
+          supabase
+            .from("witnesses")
+            .select("*")
+            .eq("deed_id", deed.id)
+            .then((res) => res.data || []),
+        ]
+      );
 
       return {
         ...deed,
@@ -112,6 +107,9 @@ export async function getDeeds(): Promise<DeedWithRelations[]> {
         nominees,
         interest_bank_details: bankDetails,
         first_side_representative: adi,
+        witnesses,
+        witnesses_adi: witnesses.filter((w) => w.party === "adi"),
+        witnesses_lander: witnesses.filter((w) => w.party === "lander"),
       };
     })
   );

@@ -2,13 +2,12 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { generateDeedId } from "@/lib/deet";
 import { supabase } from "@/lib/supabase";
 import type {
   Check,
@@ -16,10 +15,12 @@ import type {
   FirstSideRepresentative,
   InterestBankDetails,
   Nominee,
+  Witness,
 } from "@/types/deed";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { generateDeedId } from "@/lib/deet";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Props = {
   branchData: {
@@ -91,6 +92,44 @@ export default function NewDeedPage({ branchData }: Props) {
       distributed_portion: 0,
     },
   ]);
+  const [witnesses, setWitnesses] = useState<Partial<Witness>[]>([
+    {
+      party: "adi",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+    {
+      party: "adi",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+    {
+      party: "lander",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+    {
+      party: "lander",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+  ]);
 
   const handleDeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -116,6 +155,18 @@ export default function NewDeedPage({ branchData }: Props) {
       [name]: name === "amount" ? Number.parseFloat(value) || 0 : value,
     };
     setChecks(newChecks);
+  };
+  const handleWitnessChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    const updated = [...witnesses];
+    updated[index] = {
+      ...updated[index],
+      [name]: name === "age" ? Number.parseFloat(value) || 0 : value,
+    };
+    setWitnesses(updated);
   };
 
   const handleNomineeChange = (
@@ -230,6 +281,20 @@ export default function NewDeedPage({ branchData }: Props) {
         if (nomineesError) throw nomineesError;
       }
 
+      // Insert witnesses
+      if (witnesses.length > 0) {
+        const witnessesWithDeedId = witnesses.map((witness) => ({
+          ...witness,
+          deed_id: deedId,
+        }));
+
+        const { error: witnessesError } = await supabase
+          .from("witnesses")
+          .insert(witnessesWithDeedId);
+
+        if (witnessesError) throw witnessesError;
+      }
+
       // Redirect to the deed page
       router.push(`/deeds/${deedId}`);
     } catch (error) {
@@ -240,22 +305,29 @@ export default function NewDeedPage({ branchData }: Props) {
     }
   };
 
+  const tabs = [
+    { value: "personal", label: "Personal Information" },
+    { value: "address", label: "Address" },
+    { value: "adi", label: "ADI Representative" },
+    { value: "loan", label: "Loan Information" },
+    { value: "checks", label: "Checks" },
+    { value: "interest_bank_details", label: "Interest Bank Information" },
+    { value: "nominees", label: "Nominees" },
+    { value: "witnesses", label: "Witnesses" },
+  ];
+
   const goToNextTab = () => {
-    if (activeTab === "personal") setActiveTab("address");
-    else if (activeTab === "address") setActiveTab("adi");
-    else if (activeTab === "adi") setActiveTab("loan");
-    else if (activeTab === "loan") setActiveTab("checks");
-    else if (activeTab === "checks") setActiveTab("interest_bank_details");
-    else if (activeTab === "interest_bank_details") setActiveTab("nominees");
+    const currentIndex = tabs.findIndex((tab) => tab.value === activeTab);
+    if (currentIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentIndex + 1].value);
+    }
   };
 
   const goToPrevTab = () => {
-    if (activeTab === "nominees") setActiveTab("interest_bank_details");
-    else if (activeTab === "interest_bank_details") setActiveTab("checks");
-    else if (activeTab === "checks") setActiveTab("adi");
-    else if (activeTab === "adi") setActiveTab("loan");
-    else if (activeTab === "loan") setActiveTab("address");
-    else if (activeTab === "address") setActiveTab("personal");
+    const currentIndex = tabs.findIndex((tab) => tab.value === activeTab);
+    if (currentIndex > 0) {
+      setActiveTab(tabs[currentIndex - 1].value);
+    }
   };
 
   return (
@@ -269,17 +341,12 @@ export default function NewDeedPage({ branchData }: Props) {
 
       <form onSubmit={handleSubmit}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="personal">Personal Information</TabsTrigger>
-            <TabsTrigger value="address">Address</TabsTrigger>
-            <TabsTrigger value="adi">ADI Representative</TabsTrigger>
-            <TabsTrigger value="loan">Loan Information</TabsTrigger>
-            <TabsTrigger value="checks">Checks</TabsTrigger>
-            <TabsTrigger value="interest_bank_details">
-              Interest Bank Information
-            </TabsTrigger>
-
-            <TabsTrigger value="nominees">Nominees</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-8">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="personal">
@@ -944,6 +1011,101 @@ export default function NewDeedPage({ branchData }: Props) {
                   <Plus className="h-4 w-4 mr-2" />
                   Add Another Nominee
                 </Button>
+
+                <div className="flex justify-between">
+                  <Button type="button" variant="outline" onClick={goToPrevTab}>
+                    Previous
+                  </Button>
+                  <Button type="button" onClick={goToNextTab}>
+                    Next
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="witnesses">
+            <Card>
+              <CardHeader>
+                <CardTitle>Witnesses</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {witnesses.map((witness, index) => (
+                  <div key={index} className="p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-4">
+                      Witness #{index + 1}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_name_${index}`}>Name</Label>
+                        <Input
+                          id={`w_name_${index}`}
+                          name="name"
+                          value={witness.name}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_fathersname_${index}`}>
+                          Father&apos;s Name
+                        </Label>
+                        <Input
+                          id={`w_fathersname_${index}`}
+                          name="fathersname"
+                          value={witness.fathersname}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_age_${index}`}>Age</Label>
+                        <Input
+                          id={`w_age_${index}`}
+                          name="age"
+                          type="number"
+                          value={witness.age}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_nid_${index}`}>NID</Label>
+                        <Input
+                          id={`w_nid_${index}`}
+                          name="nid"
+                          value={witness.nid}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_mobile_${index}`}>Mobile</Label>
+                        <Input
+                          id={`w_mobile_${index}`}
+                          name="mobile"
+                          value={witness.mobile}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor={`w_address_${index}`}>Address</Label>
+                        <Input
+                          id={`w_address_${index}`}
+                          name="addresss"
+                          value={witness.addresss}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
 
                 <div className="flex justify-between">
                   <Button type="button" variant="outline" onClick={goToPrevTab}>

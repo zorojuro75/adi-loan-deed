@@ -1,76 +1,13 @@
-import { createServerClient } from "@/lib/supabase";
-import type { DeedWithRelations } from "@/types/deed";
-import { notFound } from "next/navigation";
-import Link from "next/link";
+import DeedPdfPreview from "@/components/deed-pdf-preview";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getDeed } from "@/lib/deet";
 import { formatDate } from "@/lib/utils";
-import DeedPdfPreview from "@/components/deed-pdf-preview";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export const revalidate = 0;
 
-async function getDeed(id: string): Promise<DeedWithRelations | null> {
-  const supabase = createServerClient();
-
-  // Get the deed
-  const { data: deed, error: deedError } = await supabase
-    .from("deeds")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (deedError || !deed) {
-    console.error("Error fetching deed:", deedError);
-    return null;
-  }
-
-  // Get the checks
-  const { data: checks, error: checksError } = await supabase
-    .from("checks")
-    .select("*")
-    .eq("deed_id", id);
-
-  if (checksError) {
-    console.error("Error fetching checks:", checksError);
-  }
-
-  // Get the nominees
-  const { data: nominees, error: nomineesError } = await supabase
-    .from("nominees")
-    .select("*")
-    .eq("deed_id", id);
-
-  if (nomineesError) {
-    console.error("Error fetching nominees:", nomineesError);
-  }
-
-  // Get the bank details
-  const { data: bankDetails, error: bankDetailsError } = await supabase
-    .from("interest_bank_details")
-    .select("*")
-    .eq("deed_id", id)
-    .single();
-  if (bankDetailsError) {
-    console.error("Error fetching bank details:", bankDetailsError);
-  }
-  // Get the ADI
-  const { data: adi, error: adiError } = await supabase
-    .from("first_side_representative")
-    .select("*")
-    .eq("deed_id", id)
-    .single();
-  if (adiError) {
-    console.error("Error fetching ADI:", adiError);
-  }
-
-  return {
-    ...deed,
-    checks: checks || [],
-    nominees: nominees || [],
-    interest_bank_details: bankDetails || {},
-    first_side_representative: adi || {},
-  };
-}
 
 export default async function DeedPage({ params }: { params: { id: string } }) {
   const deed = await getDeed(params.id);
