@@ -12,6 +12,7 @@ import type {
   FirstSideRepresentative,
   InterestBankDetails,
   Nominee,
+  Witness,
 } from "@/types/deed";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -33,6 +34,44 @@ export default function EditDeedPage() {
   );
   const [adi, setAdi] = useState<Partial<FirstSideRepresentative>>({});
   const [nominees, setNominees] = useState<Partial<Nominee>[]>([]);
+  const [witnesses, setWitnesses] = useState<Partial<Witness>[]>([
+    {
+      party: "adi",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+    {
+      party: "adi",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+    {
+      party: "lander",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+    {
+      party: "lander",
+      name: "",
+      fathersname: "",
+      age: 0,
+      addresss: "",
+      nid: "",
+      mobile: "",
+    },
+  ]);
 
   useEffect(() => {
     const fetchDeedData = async () => {
@@ -132,7 +171,16 @@ export default function EditDeedPage() {
           );
         if (nomineesError) throw nomineesError;
       }
-
+      // Delete existing witnesses and insert new ones
+      await supabase.from("witnesses").delete().eq("deed_id", params.id);
+      if (witnesses.length > 0) {
+        const { error: witnessesError } = await supabase
+          .from("witnesses")
+          .insert(
+            witnesses.map((witness) => ({ ...witness, deed_id: params.id }))
+          );
+        if (witnessesError) throw witnessesError;
+      }
       router.push(`/deeds/${params.id}`);
     } catch (error) {
       console.error("Error updating deed:", error);
@@ -182,6 +230,18 @@ export default function EditDeedPage() {
     };
     setNominees(newNominees);
   };
+  const handleWitnessChange = (
+    index: number,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    const updated = [...witnesses];
+    updated[index] = {
+      ...updated[index],
+      [name]: name === "age" ? Number.parseFloat(value) || 0 : value,
+    };
+    setWitnesses(updated);
+  };
 
   const addCheck = () => {
     setChecks([
@@ -218,27 +278,27 @@ export default function EditDeedPage() {
   };
 
   const tabs = [
-    "personal",
-    "address",
-    "adi",
-    "loan",
-    "checks",
-    "interest_bank_details",
-    "nominees",
-    "witnesses",
+    { value: "personal", label: "Personal Information" },
+    { value: "address", label: "Address" },
+    { value: "adi", label: "ADI Representative" },
+    { value: "loan", label: "Loan Information" },
+    { value: "checks", label: "Checks" },
+    { value: "interest_bank_details", label: "Interest Bank Information" },
+    { value: "nominees", label: "Nominees" },
+    { value: "witnesses", label: "Witnesses" },
   ];
 
   const goToNextTab = () => {
-    const currentIndex = tabs.indexOf(activeTab);
+    const currentIndex = tabs.findIndex((tab) => tab.value === activeTab);
     if (currentIndex < tabs.length - 1) {
-      setActiveTab(tabs[currentIndex + 1]);
+      setActiveTab(tabs[currentIndex + 1].value);
     }
   };
 
   const goToPrevTab = () => {
-    const currentIndex = tabs.indexOf(activeTab);
+    const currentIndex = tabs.findIndex((tab) => tab.value === activeTab);
     if (currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1]);
+      setActiveTab(tabs[currentIndex - 1].value);
     }
   };
 
@@ -263,17 +323,12 @@ export default function EditDeedPage() {
 
       <form onSubmit={handleSubmit}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="personal">Personal Information</TabsTrigger>
-            <TabsTrigger value="address">Address</TabsTrigger>
-            <TabsTrigger value="adi">ADI Representative</TabsTrigger>
-            <TabsTrigger value="loan">Loan Information</TabsTrigger>
-            <TabsTrigger value="checks">Checks</TabsTrigger>
-            <TabsTrigger value="interest_bank_details">
-              Interest Bank Information
-            </TabsTrigger>
-
-            <TabsTrigger value="nominees">Nominees</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-8">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
 
           <TabsContent value="personal">
@@ -940,6 +995,101 @@ export default function EditDeedPage() {
                   <Button type="button" variant="outline" onClick={goToPrevTab}>
                     Previous
                   </Button>
+                  <Button type="button" onClick={goToNextTab}>
+                    Next
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="witnesses">
+            <Card>
+              <CardHeader>
+                <CardTitle>Witnesses</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {witnesses.map((witness, index) => (
+                  <div key={index} className="p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-4">
+                      Witness #{index + 1}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_name_${index}`}>Name</Label>
+                        <Input
+                          id={`w_name_${index}`}
+                          name="name"
+                          value={witness.name}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_fathersname_${index}`}>
+                          Father&apos;s Name
+                        </Label>
+                        <Input
+                          id={`w_fathersname_${index}`}
+                          name="fathersname"
+                          value={witness.fathersname}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_age_${index}`}>Age</Label>
+                        <Input
+                          id={`w_age_${index}`}
+                          name="age"
+                          type="number"
+                          value={witness.age}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_nid_${index}`}>NID</Label>
+                        <Input
+                          id={`w_nid_${index}`}
+                          name="nid"
+                          value={witness.nid}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor={`w_mobile_${index}`}>Mobile</Label>
+                        <Input
+                          id={`w_mobile_${index}`}
+                          name="mobile"
+                          value={witness.mobile}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor={`w_address_${index}`}>Address</Label>
+                        <Input
+                          id={`w_address_${index}`}
+                          name="addresss"
+                          value={witness.addresss}
+                          onChange={(e) => handleWitnessChange(index, e)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex justify-between">
+                  <Button type="button" variant="outline" onClick={goToPrevTab}>
+                    Previous
+                  </Button>
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? (
                       <>
@@ -947,7 +1097,7 @@ export default function EditDeedPage() {
                         Saving...
                       </>
                     ) : (
-                      "Update Deed"
+                      "Save Deed"
                     )}
                   </Button>
                 </div>
