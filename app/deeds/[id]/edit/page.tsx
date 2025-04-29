@@ -34,44 +34,7 @@ export default function EditDeedPage() {
   );
   const [adi, setAdi] = useState<Partial<FirstSideRepresentative>>({});
   const [nominees, setNominees] = useState<Partial<Nominee>[]>([]);
-  const [witnesses, setWitnesses] = useState<Partial<Witness>[]>([
-    {
-      party: "adi",
-      name: "",
-      fathersname: "",
-      age: 0,
-      addresss: "",
-      nid: "",
-      mobile: "",
-    },
-    {
-      party: "adi",
-      name: "",
-      fathersname: "",
-      age: 0,
-      addresss: "",
-      nid: "",
-      mobile: "",
-    },
-    {
-      party: "lander",
-      name: "",
-      fathersname: "",
-      age: 0,
-      addresss: "",
-      nid: "",
-      mobile: "",
-    },
-    {
-      party: "lander",
-      name: "",
-      fathersname: "",
-      age: 0,
-      addresss: "",
-      nid: "",
-      mobile: "",
-    },
-  ]);
+  const [witnesses, setWitnesses] = useState<Partial<Witness>[]>([]);
 
   useEffect(() => {
     const fetchDeedData = async () => {
@@ -116,6 +79,13 @@ export default function EditDeedPage() {
           .eq("deed_id", params.id)
           .single();
         if (!adiError) setAdi(adiData || {});
+
+        // Fetch Witnesses
+        const { data: witnessesData, error: witnessesError } = await supabase
+          .from("witnesses")
+          .select("*")
+          .eq("deed_id", params.id);
+        if (!witnessesError) setWitnesses(witnessesData || []);
       } catch (error) {
         console.error("Error fetching deed:", error);
         router.push("/");
