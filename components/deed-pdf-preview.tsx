@@ -381,7 +381,7 @@ const DeedPdfPreview = forwardRef<DeedPdfPreviewHandle, DeedPdfPreviewProps>(
                 </div>
                 <div className="flex-1 border rounded p-2">
                   <p> ২য় পক্ষের (ঋনদাতা) স্বাক্ষী</p>
-                  <p>নাম: {deed.witnesses[1]?.name}</p>
+                  <p>নাম: {deed.witnesses_lander[0]?.name}</p>
                   <br />
                   <br />
                   <p>স্বাক্ষর</p>
@@ -706,7 +706,7 @@ const DeedPdfPreview = forwardRef<DeedPdfPreviewHandle, DeedPdfPreviewProps>(
                 </div>
                 <div className="flex-1 border rounded p-2">
                   <p> ২য় পক্ষের (ঋনদাতা) স্বাক্ষী</p>
-                  <p>নাম: {deed.witnesses[1]?.name}</p>
+                  <p>নাম: {deed.witnesses_lander[1]?.name}</p>
                   <br />
                   <br />
                   <p>স্বাক্ষর</p>
